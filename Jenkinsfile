@@ -1,34 +1,34 @@
 pipeline {
+
     agent any // Run on any agent (environment) default is genkins
 
     tools {
-        maven: 'my-maven'
+        maven 'my-maven'
     }
-
     environment {
         MYSQL_ROOT_LOGIN = credentials('mysql')
     }
-
     stages {
+
         stage ('Build with maven') {
             steps {
                 sh 'mvn --version'
                 sh 'java --version'
-                sh 'nvm clean package -Dmaven.test.failure.ignore=true'
+                // sh 'mvn clean package -Dmaven.test.failure.ignore=true'
             }
         }
         
         stage ('Package/Pushing image') {
-            step {
+            steps {
                 withDockerRegistry(credentialsId: 'dockerhub', url:'https://index.docker.io/v2') {
-                    sh 'docker build -t phamvant/spring-test'
+                    sh 'docker build -t phamvant/spring-test .'
                     sh 'docker push phamvant/spring-test'
                 }
             }
         }
 
         stage ('Deploy MySQL to DEV') {
-            step {
+            steps {
                 echo 'Deploying and cleaning'
                 sh 'docker image pull mysql'
                 sh 'docker network create || echo "this network existed"'
@@ -42,7 +42,7 @@ pipeline {
         }
 
         stage ('Deloy Spring Boot to DEV') {
-            step {
+            steps {
                 echo 'Deploying and cleaning'
                 sh 'docker image pull phamvant/spring-test'
                 sh 'docker network create || echo "this network existed"'

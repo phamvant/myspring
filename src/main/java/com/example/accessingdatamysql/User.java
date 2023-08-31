@@ -17,6 +17,8 @@ public class User {
 
   private Integer age;
 
+  private String degree;
+
   public Integer getId() {
     return id;
   }
